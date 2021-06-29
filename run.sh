@@ -1,9 +1,8 @@
-# test at https://hls-js-dev.netlify.app/demo/ using http://localhost:8080/$1/master.m3u8
 if [[ -z $1 ]]; then
   echo "Please specify port and file name..."
 else
   cd media/$2
-  find . -type f ! -name '*.mp4' -delete && find . -type d ! -name '*.mp4' -delete
+  find . -type f ! -name '*.mp4' -delete && find . -type d ! -name '*.mp4' -delete # delete all files except for mp4
   ffmpeg -i $2.mp4 \
   -filter_complex \
   "[0:v]split=3[v1][v2][v3]; \
@@ -19,5 +18,6 @@ else
   -hls_segment_filename "%v/fileSequence%d.ts" \
   %v/prog_index.m3u8
   cd .. && cd ..
-  go run main.go $1
+  go run main.go $1 & # starts server
+  nodejs network-layer.js # starts network layer
 fi
