@@ -4,12 +4,20 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"strconv"
 )
 
 func main() {
+	arguments := os.Args
+	if len(arguments) < 2 {
+		fmt.Println("Please provide port...")
+		return
+	}
+
 	// configure the media directory name and port
 	const mediaDir = "media"
-	const port = 8080
+	port, _ := strconv.Atoi(arguments[1])
 
 	// add a handler for the media files
 	http.Handle("/", addHeaders(http.FileServer(http.Dir(mediaDir))))
