@@ -1,11 +1,12 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const http = require('http');
+var cors = require('cors');
 const app = express();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.post('/network-layer', (req) => {
+app.post('/', (req) => {
     http.get(req.body.videosrc, function (res) {
         res.on('data', (chunk) => {
             console.log(retrieveStreamInfo(chunk))
@@ -16,6 +17,9 @@ app.post('/network-layer', (req) => {
 });
 
 const port = 5000;
+
+app.use(cors());
+app.use(express.static('.'))
 
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);

@@ -119,23 +119,30 @@
 </head>
 <body class="bg-light">
 
-<form name="mediaData" id="mediaData"  action="http://localhost:5000/network-layer" method="POST">
+<form name="mediaData" id="mediaData" action="http://localhost:5000/" method="POST">
     <input type="hidden" name="videosrc" value=""/>
 </form>
 
-<div class="container" >
+<div class="container">
     <br><br>
-    <h3>Input Source:</h3>
-    <input type="text" placeholder="Paste your link here..." id="myInput">
+    <h3>Input source:</h3>
+    <input type="text" placeholder="Paste your link here..." id="inputSrc">
+    <button id="setSrc">Submit</button>
 
-    <button id="change">Submit</button>
+    <br><br>
+    <h3>Input user id:</h3>
+    <input type="text" placeholder="Id here..." id="inputId">
+    <button id="setId">Submit</button>
+
     <div class="my-5 embed-responsive embed-responsive-16by9">
         <video id="video" class="embed-responsive-item video-js vjs-default-skin" width="640" height="360" autoplay
                controls></video>
     </div>
+
 </div>
 
 
+<script src="js/js-yaml.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 <script src="https://vjs.zencdn.net/5.19.2/video.js"></script><!-- https://videojs.com -->
 <script src="js/hls.min.js?v=v0.9.1"></script><!-- https://github.com/video-dev/hls.js -->
@@ -143,7 +150,19 @@
 <!-- https://github.com/streamroot/videojs-hlsjs-plugin -->
 <script src="js/vjs-quality-picker.js?v=v0.0.2"></script><!-- https://github.com/streamroot/videojs-quality-picker -->
 <script>
-    function submitform(name, videosrc){
+    function loadFile(filePath) {
+        var result = null;
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.open("GET", filePath, false);
+        xmlhttp.send();
+        if (xmlhttp.status==200) {
+            result = xmlhttp.responseText;
+        }
+        var delays = jsyaml.load(result)
+        return delays;
+    }
+
+    function submitform(name, videosrc) {
         var form = document.forms[name];
         form.videosrc.value = videosrc;
         document.forms[name].submit();
@@ -154,22 +173,33 @@
 
     (function ($) {
         $(document).ready(function () {
+            var delay = 2000;
+
+            $("#setId").on('click', async function () {
+                var id = $("#inputId").val()
+                delay = loadFile('http://localhost:5000/config.yaml')['delays'][id];
+                console.log(delay)
+            });
+
+
 
             // An example of playing with the Video.js javascript API
             // Will start the video and then switch the source 3 seconds latter
             // You can look at the doc there: http://docs.videojs.com/docs/guides/api.html
             videojs('video').ready(function () {
                 var myPlayer = this;
+
                 myPlayer.qualityPickerPlugin();
                 myPlayer.src({
                     type: 'application/x-mpegURL',
                     src: 'http://localhost:8080/woodpecker/master.m3u8'
                 });
 
-                $("#change").on('click', function () {
-                    var new_url = $("#myInput").val();
+                $("#setSrc").on('click', async function () {
+                    await new Promise(r => setTimeout(r, delay));
+                    new_url = $("#inputSrc").val();
                     myPlayer.src({type: 'application/x-mpegURL', src: new_url});
-                    submitform("mediaData", myPlayer.currentSrc())
+                    submitform("mediaData", myPlayer.currentSrc());
                 });
             });
 

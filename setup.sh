@@ -10,3 +10,4 @@ ffmpeg -version
 
 sudo apt install nodejs
 npm install express
+npm install --save cors
