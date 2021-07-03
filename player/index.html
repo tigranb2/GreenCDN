@@ -181,8 +181,6 @@
                 console.log(delay)
             });
 
-
-
             // An example of playing with the Video.js javascript API
             // Will start the video and then switch the source 3 seconds latter
             // You can look at the doc there: http://docs.videojs.com/docs/guides/api.html
@@ -192,7 +190,7 @@
                 myPlayer.qualityPickerPlugin();
                 myPlayer.src({
                     type: 'application/x-mpegURL',
-                    src: 'http://localhost:8080/woodpecker/master.m3u8'
+                    src: 'http://localhost:3000/woodpecker/master.m3u8'
                 });
 
                 $("#setSrc").on('click', async function () {
