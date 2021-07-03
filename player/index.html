@@ -119,10 +119,6 @@
 </head>
 <body class="bg-light">
 
-<form name="mediaData" id="mediaData" action="http://localhost:5000/" method="POST">
-    <input type="hidden" name="videosrc" value=""/>
-</form>
-
 <div class="container">
     <br><br>
     <h3>Input source:</h3>
@@ -155,17 +151,11 @@
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.open("GET", filePath, false);
         xmlhttp.send();
-        if (xmlhttp.status==200) {
+        if (xmlhttp.status == 200) {
             result = xmlhttp.responseText;
         }
         var delays = jsyaml.load(result)
         return delays;
-    }
-
-    function submitform(name, videosrc) {
-        var form = document.forms[name];
-        form.videosrc.value = videosrc;
-        document.forms[name].submit();
     }
 
     //http://qthttp.apple.com.edgesuite.net/1010qwoeiuryfg/sl.m3u8
@@ -177,11 +167,9 @@
 
             $("#setId").on('click', async function () {
                 var id = $("#inputId").val()
-                delay = loadFile('http://localhost:5000/config.yaml')['delays'][id];
+                delay = loadFile('http://localhost:8000/config.yaml')['delays'][id];
                 console.log(delay)
             });
-
-
 
             // An example of playing with the Video.js javascript API
             // Will start the video and then switch the source 3 seconds latter
@@ -192,14 +180,18 @@
                 myPlayer.qualityPickerPlugin();
                 myPlayer.src({
                     type: 'application/x-mpegURL',
-                    src: 'http://localhost:8080/woodpecker/master.m3u8'
+                    src: 'http://localhost:8000/woodpecker/master.m3u8'
                 });
 
                 $("#setSrc").on('click', async function () {
                     await new Promise(r => setTimeout(r, delay));
                     new_url = $("#inputSrc").val();
                     myPlayer.src({type: 'application/x-mpegURL', src: new_url});
-                    submitform("mediaData", myPlayer.currentSrc());
+
+                    var xhr = new XMLHttpRequest();
+                    xhr.open("POST", 'http://localhost:8000/media-data', true);
+                    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                    xhr.send(`videosrc=${myPlayer.currentSrc()}`);
                 });
             });
 
